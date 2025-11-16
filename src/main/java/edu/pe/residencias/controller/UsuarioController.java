@@ -1,7 +1,8 @@
 package edu.pe.residencias.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
+import edu.pe.residencias.model.entity.Persona;
+import edu.pe.residencias.model.entity.Rol;
 import edu.pe.residencias.model.entity.Usuario;
+import edu.pe.residencias.service.PersonaService;
+import edu.pe.residencias.service.RolService;
 import edu.pe.residencias.service.UsuarioService;
 
 @RestController
@@ -25,6 +29,12 @@ public class UsuarioController {
     
     @Autowired
     private UsuarioService usuarioService;
+    
+    @Autowired
+    private PersonaService personaService;
+    
+    @Autowired
+    private RolService rolService;
 
     @GetMapping
     public ResponseEntity<List<Usuario>> readAll() {
@@ -40,10 +50,29 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<Usuario> crear(@Valid @RequestBody Usuario usuario) {
+    public ResponseEntity<Usuario> crear(@RequestBody Map<String, Object> body) {
         try {
-            Usuario u = usuarioService.create(usuario);
-            return new ResponseEntity<>(u, HttpStatus.CREATED);
+            Long personaId = ((Number) body.get("personaId")).longValue();
+            Long rolId = ((Number) body.get("rolId")).longValue();
+
+            Persona persona = personaService.read(personaId)
+                    .orElseThrow(() -> new RuntimeException("Persona no encontrada"));
+
+            Rol rol = rolService.read(rolId)
+                    .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+
+            Usuario usuario = new Usuario();
+            usuario.setPersona(persona);
+            usuario.setRol(rol);
+            usuario.setUsername((String) body.get("username"));
+            usuario.setPassword((String) body.get("password"));
+            usuario.setEstado((String) body.get("estado"));
+            usuario.setEmailVerificado(false);
+            usuario.setCreatedAt(LocalDateTime.now());
+
+            Usuario saved = usuarioService.create(usuario);
+            return new ResponseEntity<>(saved, HttpStatus.CREATED);
+
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -70,13 +99,29 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUsuario(@PathVariable("id") Long id, @Valid @RequestBody Usuario usuario) {
-        Optional<Usuario> u = usuarioService.read(id);
-        if (u.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            Usuario updatedUsuario = usuarioService.update(usuario);
-            return new ResponseEntity<>(updatedUsuario, HttpStatus.OK);
-        }
+    public ResponseEntity<Usuario> updateUsuario(@PathVariable("id") Long id, @RequestBody Map<String, Object> body) {
+        
+        Usuario usuario = usuarioService.read(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Long personaId = ((Number) body.get("personaId")).longValue();
+        Long rolId = ((Number) body.get("rolId")).longValue();
+
+        Persona persona = personaService.read(personaId)
+                .orElseThrow(() -> new RuntimeException("Persona no encontrada"));
+
+        Rol rol = rolService.read(rolId)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+
+        usuario.setPersona(persona);
+        usuario.setRol(rol);
+        usuario.setUsername((String) body.get("username"));
+        usuario.setPassword((String) body.get("password"));
+        usuario.setEstado((String) body.get("estado"));
+
+        Usuario updated = usuarioService.update(usuario);
+
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
+
 }

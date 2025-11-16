@@ -1,6 +1,9 @@
 package edu.pe.residencias.controller;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import edu.pe.residencias.model.entity.Habitacion;
+import edu.pe.residencias.model.entity.Residencia;
 import edu.pe.residencias.service.HabitacionService;
+import edu.pe.residencias.service.ResidenciaService;
 
 @RestController
 @RequestMapping("/api/habitaciones")
@@ -25,6 +30,9 @@ public class HabitacionController {
     
     @Autowired
     private HabitacionService habitacionService;
+    
+    @Autowired
+    private ResidenciaService residenciaService;
 
     @GetMapping
     public ResponseEntity<List<Habitacion>> readAll() {
@@ -40,14 +48,41 @@ public class HabitacionController {
     }
 
     @PostMapping
-    public ResponseEntity<Habitacion> crear(@Valid @RequestBody Habitacion habitacion) {
+    public ResponseEntity<Habitacion> crear(@RequestBody Map<String, Object> body) {
         try {
+            Long residenciaId = ((Number) body.get("residenciaId")).longValue();
+
+            Residencia residencia = residenciaService.read(residenciaId)
+                    .orElseThrow(() -> new RuntimeException("Residencia no encontrada"));
+
+            Habitacion habitacion = new Habitacion();
+            habitacion.setResidencia(residencia);
+
+            habitacion.setNombre((String) body.get("nombre"));
+            habitacion.setCodigoHabitacion((String) body.get("codigoHabitacion"));
+
+            if (body.containsKey("precioMensual")) {
+                Number precio = (Number) body.get("precioMensual");
+                habitacion.setPrecioMensual(BigDecimal.valueOf(precio.doubleValue()));
+            }
+            
+            if (body.containsKey("capacidad")) {
+                Number capacidad = (Number) body.get("capacidad");
+                habitacion.setCapacidad(capacidad.intValue());
+            }
+
+            habitacion.setEstado((String) body.get("estado"));
+            habitacion.setCreatedAt(LocalDateTime.now());
+
             Habitacion h = habitacionService.create(habitacion);
             return new ResponseEntity<>(h, HttpStatus.CREATED);
+
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Habitacion> getHabitacionId(@PathVariable("id") Long id) {
@@ -70,13 +105,40 @@ public class HabitacionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateHabitacion(@PathVariable("id") Long id, @Valid @RequestBody Habitacion habitacion) {
-        Optional<Habitacion> h = habitacionService.read(id);
-        if (h.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            Habitacion updatedHabitacion = habitacionService.update(habitacion);
-            return new ResponseEntity<>(updatedHabitacion, HttpStatus.OK);
+    public ResponseEntity<?> updateHabitacion(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        try {
+            Habitacion habitacion = habitacionService.read(id)
+                    .orElseThrow(() -> new RuntimeException("Habitación no encontrada"));
+
+            if (body.containsKey("residenciaId")) {
+                Long residenciaId = ((Number) body.get("residenciaId")).longValue();
+                habitacion.setResidencia(
+                    residenciaService.read(residenciaId)
+                        .orElseThrow(() -> new RuntimeException("Residencia no encontrada"))
+                );
+            }
+
+            habitacion.setNombre((String) body.get("nombre"));
+            habitacion.setCodigoHabitacion((String) body.get("codigoHabitacion"));
+
+            if (body.containsKey("precioMensual")) {
+                Number precio = (Number) body.get("precioMensual");
+                habitacion.setPrecioMensual(BigDecimal.valueOf(precio.doubleValue()));
+            }
+
+            if (body.containsKey("capacidad")) {
+                Number capacidad = (Number) body.get("capacidad");
+                habitacion.setCapacidad(capacidad.intValue());
+            }
+
+            habitacion.setEstado((String) body.get("estado"));
+
+            Habitacion updated = habitacionService.update(habitacion);
+            return new ResponseEntity<>(updated, HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

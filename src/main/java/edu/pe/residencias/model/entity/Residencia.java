@@ -18,9 +18,11 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -75,22 +77,32 @@ public class Residencia {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "residencia")
     @JsonIgnore
     private Set<Habitacion> habitaciones;
 
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "residencia")
     @JsonIgnore
     private Set<SolicitudAlojamiento> solicitudesAlojamiento;
 
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "residencia")
     @JsonIgnore
     private Set<GastoResidencia> gastosResidencia;
 
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "residencia")
     @JsonIgnore
     private Set<Review> reviews;
 
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "residencia")
     @JsonIgnore
     private Set<ImagenResidencia> imagenesResidencia;

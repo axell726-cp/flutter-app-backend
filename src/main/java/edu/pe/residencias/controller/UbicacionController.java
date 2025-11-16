@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import edu.pe.residencias.model.entity.Ubicacion;
+import edu.pe.residencias.model.entity.Ubicacion;
 import edu.pe.residencias.service.UbicacionService;
 
 @RestController
@@ -70,13 +71,13 @@ public class UbicacionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUbicacion(@PathVariable("id") Long id, @Valid @RequestBody Ubicacion ubicacion) {
+    public ResponseEntity<Ubicacion> updateUbicacion(@PathVariable("id") Long id, @Valid @RequestBody Ubicacion ubicacion) {
         Optional<Ubicacion> u = ubicacionService.read(id);
         if (u.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            Ubicacion updatedUbicacion = ubicacionService.update(ubicacion);
-            return new ResponseEntity<>(updatedUbicacion, HttpStatus.OK);
         }
+        ubicacion.setId(id);
+        Ubicacion updatedUbicacion = ubicacionService.update(ubicacion);
+        return new ResponseEntity<>(updatedUbicacion, HttpStatus.OK);
     }
 }

@@ -70,13 +70,14 @@ public class RolController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateRol(@PathVariable("id") Long id, @Valid @RequestBody Rol rol) {
+    public ResponseEntity<Rol> updateRol(@PathVariable("id") Long id, @Valid @RequestBody Rol rol) {
         Optional<Rol> r = rolService.read(id);
         if (r.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            Rol updatedRol = rolService.update(rol);
-            return new ResponseEntity<>(updatedRol, HttpStatus.OK);
-        }
+        } 
+        rol.setId(id);
+        Rol updatedRol = rolService.update(rol);
+        return new ResponseEntity<>(updatedRol, HttpStatus.OK);
     }
+
 }

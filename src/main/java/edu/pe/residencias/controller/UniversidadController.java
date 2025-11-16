@@ -70,13 +70,13 @@ public class UniversidadController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUniversidad(@PathVariable("id") Long id, @Valid @RequestBody Universidad universidad) {
+    public ResponseEntity<Universidad> updateUniversidad(@PathVariable("id") Long id, @Valid @RequestBody Universidad universidad) {
         Optional<Universidad> u = universidadService.read(id);
         if (u.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            Universidad updatedUniversidad = universidadService.update(universidad);
-            return new ResponseEntity<>(updatedUniversidad, HttpStatus.OK);
         }
+        universidad.setId(id);
+        Universidad updatedUniversidad = universidadService.update(universidad);
+        return new ResponseEntity<>(updatedUniversidad, HttpStatus.OK);
     }
 }

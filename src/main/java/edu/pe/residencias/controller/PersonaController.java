@@ -70,13 +70,14 @@ public class PersonaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePersona(@PathVariable("id") Long id, @Valid @RequestBody Persona persona) {
+    public ResponseEntity<Persona> updatePersona(@PathVariable("id") Long id, @Valid @RequestBody Persona persona) {
         Optional<Persona> p = personaService.read(id);
         if (p.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            Persona updatedPersona = personaService.update(persona);
-            return new ResponseEntity<>(updatedPersona, HttpStatus.OK);
         }
+        persona.setId(id);
+        Persona updatedPersona = personaService.update(persona);
+        return new ResponseEntity<>(updatedPersona, HttpStatus.OK);
     }
+
 }

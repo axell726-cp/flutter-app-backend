@@ -1,6 +1,8 @@
 package edu.pe.residencias.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import edu.pe.residencias.model.entity.ImagenResidencia;
+import edu.pe.residencias.model.entity.Residencia;
 import edu.pe.residencias.service.ImagenResidenciaService;
+import edu.pe.residencias.service.ResidenciaService;
 
 @RestController
 @RequestMapping("/api/imagenes-residencias")
@@ -25,6 +29,9 @@ public class ImagenResidenciaController {
     
     @Autowired
     private ImagenResidenciaService imagenResidenciaService;
+    
+    @Autowired
+    private ResidenciaService residenciaService;
 
     @GetMapping
     public ResponseEntity<List<ImagenResidencia>> readAll() {
@@ -40,14 +47,29 @@ public class ImagenResidenciaController {
     }
 
     @PostMapping
-    public ResponseEntity<ImagenResidencia> crear(@Valid @RequestBody ImagenResidencia imagenResidencia) {
+    public ResponseEntity<?> crear(@RequestBody Map<String, Object> body) {
         try {
-            ImagenResidencia i = imagenResidenciaService.create(imagenResidencia);
-            return new ResponseEntity<>(i, HttpStatus.CREATED);
+            Long residenciaId = ((Number) body.get("residenciaId")).longValue();
+
+            Residencia residencia = residenciaService.read(residenciaId)
+                    .orElseThrow(() -> new RuntimeException("Residencia no encontrada"));
+
+            ImagenResidencia imagen = new ImagenResidencia();
+            imagen.setResidencia(residencia);
+            imagen.setUrl((String) body.get("url"));
+            imagen.setOrden((Integer) body.get("orden"));
+            imagen.setEstado((String) body.get("estado"));
+            imagen.setCreatedAt(LocalDateTime.now());
+
+            ImagenResidencia creada = imagenResidenciaService.create(imagen);
+
+            return new ResponseEntity<>(creada, HttpStatus.CREATED);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ImagenResidencia> getImagenResidenciaId(@PathVariable("id") Long id) {
@@ -70,13 +92,28 @@ public class ImagenResidenciaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateImagenResidencia(@PathVariable("id") Long id, @Valid @RequestBody ImagenResidencia imagenResidencia) {
-        Optional<ImagenResidencia> i = imagenResidenciaService.read(id);
-        if (i.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            ImagenResidencia updatedImagenResidencia = imagenResidenciaService.update(imagenResidencia);
-            return new ResponseEntity<>(updatedImagenResidencia, HttpStatus.OK);
+    public ResponseEntity<?> updateImagenResidencia(@PathVariable("id") Long id, @Valid @RequestBody ImagenResidencia body) {
+        try {
+            ImagenResidencia imagen = imagenResidenciaService.read(id)
+                    .orElseThrow(() -> new RuntimeException("ImagenResidencia no encontrada"));
+
+            imagen.setUrl(body.getUrl());
+            imagen.setOrden(body.getOrden());
+            imagen.setEstado(body.getEstado());
+
+            if (body.getResidencia() != null && body.getResidencia().getId() != null) {
+                Residencia residencia = residenciaService.read(body.getResidencia().getId())
+                        .orElseThrow(() -> new RuntimeException("Residencia no encontrada"));
+                imagen.setResidencia(residencia);
+            }
+
+            ImagenResidencia updated = imagenResidenciaService.update(imagen);
+            return new ResponseEntity<>(updated, HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 }
