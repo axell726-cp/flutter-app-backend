@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import edu.pe.residencias.model.entity.Ubicacion;
-import edu.pe.residencias.model.entity.Ubicacion;
 import edu.pe.residencias.service.UbicacionService;
 
 @RestController

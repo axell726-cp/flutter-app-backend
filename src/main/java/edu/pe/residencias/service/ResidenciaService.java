@@ -2,7 +2,6 @@ package edu.pe.residencias.service;
 
 import java.util.List;
 import java.util.Optional;
-
 import edu.pe.residencias.model.entity.Residencia;
 
 public interface ResidenciaService {
@@ -11,4 +10,7 @@ public interface ResidenciaService {
     void delete(Long id);
     Optional<Residencia> read(Long id);
     List<Residencia> readAll();
+
+    // Nuevo método
+    List<Residencia> listarPorUsuario(Long usuarioId);
 }

@@ -40,4 +40,9 @@ public class ResidenciaServiceImpl implements ResidenciaService {
     public List<Residencia> readAll() {
         return repository.findAll();
     }
+
+    @Override
+    public List<Residencia> listarPorUsuario(Long usuarioId) {
+        return repository.findByUsuarioId(usuarioId);
+    }
 }
