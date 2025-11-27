@@ -40,4 +40,24 @@ public class HabitacionServiceImpl implements HabitacionService {
     public List<Habitacion> readAll() {
         return repository.findAll();
     }
+
+    @Override
+    public List<Habitacion> listarPorResidencia(Long residenciaId) {
+        return repository.findByResidenciaId(residenciaId);
+    }
+
+    @Override
+    public List<Habitacion> listarDestacadasPorResidencia(Long residenciaId) {
+        return repository.findByResidenciaIdAndDestacadoTrue(residenciaId);
+    }
+
+    @Override
+    public List<Habitacion> listarDisponiblesPorResidencia(Long residenciaId) {
+        return repository.findByResidenciaIdAndEstado(residenciaId, "DISPONIBLE");
+    }
+
+    @Override
+    public List<Habitacion> listarPorEstado(String estado) {
+        return repository.findByEstado(estado);
+    }
 }

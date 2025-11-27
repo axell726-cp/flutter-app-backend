@@ -139,4 +139,80 @@ public class HabitacionController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // ============================
+    // LISTAR HABITACIONES POR RESIDENCIA
+    // ============================
+    @GetMapping("/residencia/{residenciaId}")
+    public ResponseEntity<List<Habitacion>> listarPorResidencia(@PathVariable Long residenciaId) {
+        try {
+            List<Habitacion> habitaciones = habitacionService.listarPorResidencia(residenciaId);
+            
+            if (habitaciones.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            
+            return new ResponseEntity<>(habitaciones, HttpStatus.OK);
+            
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // ============================
+    // LISTAR HABITACIONES DESTACADAS POR RESIDENCIA
+    // ============================
+    @GetMapping("/residencia/{residenciaId}/destacadas")
+    public ResponseEntity<List<Habitacion>> listarDestacadasPorResidencia(@PathVariable Long residenciaId) {
+        try {
+            List<Habitacion> habitaciones = habitacionService.listarDestacadasPorResidencia(residenciaId);
+            
+            if (habitaciones.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            
+            return new ResponseEntity<>(habitaciones, HttpStatus.OK);
+            
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // ============================
+    // LISTAR HABITACIONES DISPONIBLES POR RESIDENCIA
+    // ============================
+    @GetMapping("/residencia/{residenciaId}/disponibles")
+    public ResponseEntity<List<Habitacion>> listarDisponiblesPorResidencia(@PathVariable Long residenciaId) {
+        try {
+            List<Habitacion> habitaciones = habitacionService.listarDisponiblesPorResidencia(residenciaId);
+            
+            if (habitaciones.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            
+            return new ResponseEntity<>(habitaciones, HttpStatus.OK);
+            
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // ============================
+    // LISTAR HABITACIONES POR ESTADO
+    // ============================
+    @GetMapping("/estado/{estado}")
+    public ResponseEntity<List<Habitacion>> listarPorEstado(@PathVariable String estado) {
+        try {
+            List<Habitacion> habitaciones = habitacionService.listarPorEstado(estado);
+            
+            if (habitaciones.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            
+            return new ResponseEntity<>(habitaciones, HttpStatus.OK);
+            
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

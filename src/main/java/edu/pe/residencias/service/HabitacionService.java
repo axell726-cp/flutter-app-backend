@@ -11,4 +11,10 @@ public interface HabitacionService {
     void delete(Long id);
     Optional<Habitacion> read(Long id);
     List<Habitacion> readAll();
+
+    // Nuevos métodos
+    List<Habitacion> listarPorResidencia(Long residenciaId);
+    List<Habitacion> listarDestacadasPorResidencia(Long residenciaId);
+    List<Habitacion> listarDisponiblesPorResidencia(Long residenciaId);
+    List<Habitacion> listarPorEstado(String estado);
 }

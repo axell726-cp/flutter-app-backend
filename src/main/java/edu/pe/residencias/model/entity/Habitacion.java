@@ -74,6 +74,9 @@ public class Habitacion {
     @Column(name = "precio_mensual", precision = 10, scale = 2)
     private BigDecimal precioMensual;
 
+    @Column(name = "destacado")
+    private Boolean destacado;
+
     @Column(name = "estado")
     private String estado;
 
